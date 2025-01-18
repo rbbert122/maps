@@ -2,6 +2,8 @@ export const environment = {
   firebase: {
     apiKey: 'AIzaSyA6wKiMNYez8OcxHImnELYaAUJE6q0N0vs',
     authDomain: 'runapp-5bf81.firebaseapp.com',
+    databaseURL:
+      'https://runapp-5bf81-default-rtdb.europe-west1.firebasedatabase.app',
     projectId: 'runapp-5bf81',
     storageBucket: 'runapp-5bf81.firebasestorage.app',
     messagingSenderId: '440684106936',

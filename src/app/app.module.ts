@@ -13,17 +13,30 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { HomeComponent } from './pages/home/home.component';
 import { MapComponent } from './pages/map/map.component';
 
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
+import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+import { environment } from '../environments/environment';
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FirebaseService } from './services/firebase.service';
+import { SignInComponent } from './pages/sign-in/sign-in.component';
+
 @NgModule({
-  declarations: [AppComponent, HomeComponent, MapComponent],
+  declarations: [AppComponent, HomeComponent, MapComponent, SignInComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    BrowserAnimationsModule,
     MatTabsModule,
     MatButtonModule,
     MatDividerModule,
     MatListModule,
+    AngularFireModule.initializeApp(environment.firebase, 'maps'),
+    AngularFireDatabaseModule,
+    AngularFireAuthModule,
   ],
-  providers: [provideAnimationsAsync()],
+  providers: [provideAnimationsAsync(), FirebaseService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
