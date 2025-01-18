@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavigationEnd, Event, Router } from '@angular/router';
+import { Event, NavigationEnd, Router } from '@angular/router';
 
 interface ITab {
   name: string;
