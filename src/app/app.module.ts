@@ -12,6 +12,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 
 import { HomeComponent } from './pages/home/home.component';
 import { MapComponent } from './pages/map/map.component';
+import { SignInComponent } from './pages/sign-in/sign-in.component';
 
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
@@ -19,11 +20,19 @@ import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { environment } from '../environments/environment';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 import { FirebaseService } from './services/firebase.service';
-import { SignInComponent } from './pages/sign-in/sign-in.component';
+
+import { GoogleSsoDirective } from './directives/google-sso.directive';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, MapComponent, SignInComponent],
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    MapComponent,
+    SignInComponent,
+    GoogleSsoDirective,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
