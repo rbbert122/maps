@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -12,7 +13,6 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 
 import { HomeComponent } from './pages/home/home.component';
 import { MapComponent } from './pages/map/map.component';
-import { SignInComponent } from './pages/sign-in/sign-in.component';
 
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
@@ -26,18 +26,13 @@ import { FirebaseService } from './services/firebase.service';
 import { GoogleSsoDirective } from './directives/google-sso.directive';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HomeComponent,
-    MapComponent,
-    SignInComponent,
-    GoogleSsoDirective,
-  ],
+  declarations: [AppComponent, HomeComponent, MapComponent, GoogleSsoDirective],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MatTabsModule,
+    MatCardModule,
     MatButtonModule,
     MatDividerModule,
     MatListModule,

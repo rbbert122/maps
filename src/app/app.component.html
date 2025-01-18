@@ -16,7 +16,22 @@
     [routerLink]="tab.link"
     >{{ tab.name }}</a
   >
+  <mat-card>
+    <mat-card-content>
+      <div *ngIf="angularFireAuth.authState | async; else signInView">
+        <button mat-raised-button color="primary" (click)="logOut()">
+          Log out
+        </button>
+      </div>
+      <ng-template #signInView>
+        <button mat-raised-button color="accent" appGoogleSso>
+          Sign in with Google
+        </button>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
 </nav>
+
 <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
 
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->

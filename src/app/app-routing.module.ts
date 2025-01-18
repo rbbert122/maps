@@ -3,7 +3,6 @@ import { ExtraOptions, RouterModule, Routes } from '@angular/router';
 
 import { HomeComponent } from './pages/home/home.component';
 import { MapComponent } from './pages/map/map.component';
-import { SignInComponent } from './pages/sign-in/sign-in.component';
 
 import { authGuard } from './guards/auth.guard';
 
@@ -16,10 +15,6 @@ const routes: Routes = [
     path: 'map',
     component: MapComponent,
     canActivate: [authGuard],
-  },
-  {
-    path: 'sign-in',
-    component: SignInComponent,
   },
   {
     path: '',

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Event, NavigationEnd, Router } from '@angular/router';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 interface ITab {
   name: string;
@@ -23,15 +24,11 @@ export class AppComponent {
       name: 'Map',
       link: '/map',
     },
-    {
-      name: 'Sign In',
-      link: '/sign-in',
-    },
   ];
 
   activeTab = this.tabs[0].link;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, public angularFireAuth: AngularFireAuth) {
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
         this.activeTab = event.url;
@@ -43,5 +40,9 @@ export class AppComponent {
   // See app.component.html
   mapLoadedEvent(status: boolean) {
     console.log('The map loaded: ' + status);
+  }
+
+  logOut() {
+    this.angularFireAuth.signOut();
   }
 }
