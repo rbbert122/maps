@@ -16,6 +16,7 @@ import MapView from '@arcgis/core/views/MapView';
 
 import Graphic from '@arcgis/core/Graphic';
 import Point from '@arcgis/core/geometry/Point';
+import Polyline from '@arcgis/core/geometry/Polyline.js';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
 
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
@@ -39,6 +40,7 @@ export class MapComponent implements OnInit, OnDestroy {
   view!: esri.MapView;
   graphicsLayer!: esri.GraphicsLayer;
   graphicsLayerUserPoints!: esri.GraphicsLayer;
+  graphicsLayerUserPolylines!: esri.GraphicsLayer;
   graphicsLayerRoutes!: esri.GraphicsLayer;
   trailheadsLayer!: esri.FeatureLayer;
 
@@ -119,6 +121,8 @@ export class MapComponent implements OnInit, OnDestroy {
     this.map.add(this.graphicsLayer);
     this.graphicsLayerUserPoints = new GraphicsLayer();
     this.map.add(this.graphicsLayerUserPoints);
+    this.graphicsLayerUserPolylines = new GraphicsLayer();
+    this.map.add(this.graphicsLayerUserPolylines);
     this.graphicsLayerRoutes = new GraphicsLayer();
     this.map.add(this.graphicsLayerRoutes);
   }
@@ -174,6 +178,29 @@ export class MapComponent implements OnInit, OnDestroy {
     this.graphicsLayerUserPoints.removeAll();
   }
 
+  addPolyline(points: Array<Array<number>>) {
+    let polyline = new Polyline({
+      paths: [points],
+    });
+
+    const simpleLineSymbol = {
+      type: 'simple-line',
+      color: [226, 119, 40], // Orange
+      width: 2,
+    };
+
+    let polylineGraphic: esri.Graphic = new Graphic({
+      geometry: polyline,
+      symbol: simpleLineSymbol,
+    });
+
+    this.graphicsLayerUserPolylines.add(polylineGraphic);
+  }
+
+  removePolylines() {
+    this.graphicsLayerUserPolylines.removeAll;
+  }
+
   removeRoutes() {
     this.graphicsLayerRoutes.removeAll();
   }
@@ -216,6 +243,7 @@ export class MapComponent implements OnInit, OnDestroy {
       // Remove all graphics related to routes
       this.removeRoutes();
       this.removePoints();
+      this.removePolylines();
       console.log('Route cleared');
       this.view.ui.remove(this.directionsElement);
       this.view.ui.empty('top-right');

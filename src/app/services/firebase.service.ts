@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 export interface IDatabaseItem {
   name: string;
   val?: string;
+  uid?: string;
 }
 
 @Injectable({
@@ -33,10 +34,11 @@ export class FirebaseService {
     this.db.list('list').remove();
   }
 
-  addListObject(val: string) {
+  addListObject(val: string, uid: string) {
     let item: IDatabaseItem = {
       name: 'test',
       val: val,
+      uid: uid,
     };
     this.db.list('list').push(item);
   }

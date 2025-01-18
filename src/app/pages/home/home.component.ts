@@ -41,8 +41,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   addListItem() {
-    let newItemValue: string = Math.floor(Math.random() * 100).toString();
-    this.fbs.addListObject(newItemValue);
+    const uid = localStorage.getItem('uid');
+    if (uid) {
+      let newItemValue: string = Math.floor(Math.random() * 100).toString();
+      this.fbs.addListObject(newItemValue, uid);
+    }
   }
 
   removeItems() {
