@@ -1,4 +1,4 @@
-import { Directive, HostListener } from '@angular/core';
+import { Directive, HostListener, inject } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { GoogleAuthProvider } from '@firebase/auth';
 
@@ -12,7 +12,10 @@ export class GoogleSsoDirective {
     const creds = await this.angularFireAuth.signInWithPopup(
       new GoogleAuthProvider()
     );
-    // do what you want with the credentials, for ex adding them to firestore...
-    console.log(creds);
+    const uid = creds.user?.uid;
+    if (uid) {
+      localStorage.setItem('uid', uid);
+      console.log('Saved uid to local storage');
+    }
   }
 }
