@@ -24,9 +24,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FirebaseService } from './services/firebase.service';
 
 import { GoogleSsoDirective } from './directives/google-sso.directive';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, MapComponent, GoogleSsoDirective],
+  declarations: [AppComponent, HomeComponent, MapComponent, GoogleSsoDirective, ProfileComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

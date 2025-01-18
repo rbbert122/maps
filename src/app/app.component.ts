@@ -24,6 +24,10 @@ export class AppComponent {
       name: 'Map',
       link: '/map',
     },
+    {
+      name: 'Profile',
+      link: '/profile',
+    },
   ];
 
   activeTab = this.tabs[0].link;

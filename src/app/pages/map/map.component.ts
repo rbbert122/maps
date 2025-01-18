@@ -151,6 +151,10 @@ export class MapComponent implements OnInit, OnDestroy {
     });
   }
 
+  removeRoutes() {
+    this.graphicsLayerRoutes.removeAll();
+  }
+
   addPoint(lat: number, lng: number) {
     let point = new Point({
       longitude: lng,
@@ -198,11 +202,7 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   removePolylines() {
-    this.graphicsLayerUserPolylines.removeAll;
-  }
-
-  removeRoutes() {
-    this.graphicsLayerRoutes.removeAll();
+    this.graphicsLayerUserPolylines.removeAll();
   }
 
   async calculateRoute(routeUrl: string) {
