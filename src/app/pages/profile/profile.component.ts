@@ -17,9 +17,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   listItems: IDatabaseItem[] = [];
 
+  uid: string = '';
+
   constructor(private fbs: FirebaseService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    const uid = localStorage.getItem('uid');
+    if (uid) {
+      this.uid = uid;
+      this.connectFirebase();
+    }
+  }
 
   connectFirebase() {
     if (this.isConnected) {
@@ -31,7 +39,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       .getChangeFeedList()
       .subscribe((items: IDatabaseItem[]) => {
         console.log('list updated: ', items);
-        this.listItems = items;
+        this.listItems = items.filter((item) => item.uid === this.uid);
       });
     this.subscriptionObj = this.fbs
       .getChangeFeedObject()

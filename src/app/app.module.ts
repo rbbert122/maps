@@ -7,7 +7,9 @@ import { AppComponent } from './app.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatListModule } from '@angular/material/list';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -27,12 +29,20 @@ import { GoogleSsoDirective } from './directives/google-sso.directive';
 import { ProfileComponent } from './pages/profile/profile.component';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, MapComponent, GoogleSsoDirective, ProfileComponent],
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    MapComponent,
+    GoogleSsoDirective,
+    ProfileComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MatTabsModule,
+    MatFormFieldModule,
+    MatSelectModule,
     MatCardModule,
     MatButtonModule,
     MatDividerModule,

@@ -25,6 +25,8 @@ import * as route from '@arcgis/core/rest/route.js';
 import FeatureSet from '@arcgis/core/rest/support/FeatureSet';
 import RouteParameters from '@arcgis/core/rest/support/RouteParameters';
 
+import * as locator from '@arcgis/core/rest/locator.js';
+
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
