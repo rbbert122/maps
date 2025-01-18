@@ -44,7 +44,7 @@ export class MapComponent implements OnInit, OnDestroy {
   graphicsLayerRoutes!: esri.GraphicsLayer;
   trailheadsLayer!: esri.FeatureLayer;
 
-  zoom = 10;
+  zoom = 12;
   center: Array<number> = [26.096306, 44.439663];
   basemap = 'streets-vector';
   loaded = false;
