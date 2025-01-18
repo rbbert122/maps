@@ -2,6 +2,19 @@
 <div class="container">
   <!-- The DIV that will contain the map -->
   <div #mapViewNode class="map-view"></div>
+
+  <!-- Place Search Dropdown -->
+  <mat-form-field class="map-dropdown" appearance="fill">
+    <mat-label>Select Place Type</mat-label>
+    <mat-select
+      [(value)]="selectedPlace"
+      (selectionChange)="onPlaceChange($event)"
+    >
+      <mat-option *ngFor="let place of places" [value]="place">
+        {{ place }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
 </div>
 
 <!-- Floating Action Button (FAB) -->

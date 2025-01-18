@@ -18,6 +18,7 @@ import Graphic from '@arcgis/core/Graphic';
 import Point from '@arcgis/core/geometry/Point';
 import Polyline from '@arcgis/core/geometry/Polyline.js';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
+import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol.js';
 
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 
@@ -25,7 +26,10 @@ import * as route from '@arcgis/core/rest/route.js';
 import FeatureSet from '@arcgis/core/rest/support/FeatureSet';
 import RouteParameters from '@arcgis/core/rest/support/RouteParameters';
 
+import * as reactiveUtils from '@arcgis/core/core/reactiveUtils';
 import * as locator from '@arcgis/core/rest/locator.js';
+
+import { MatSelectChange } from '@angular/material/select';
 
 @Component({
   selector: 'app-map',
@@ -51,6 +55,15 @@ export class MapComponent implements OnInit, OnDestroy {
   basemap = 'streets-vector';
   loaded = false;
   directionsElement: any;
+
+  // Place category dropdown
+  places = [
+    'Choose a place type...',
+    'Parks and Outdoors',
+    'Coffee shop',
+    'Food',
+  ];
+  selectedPlace: string = this.places[0];
 
   constructor() {}
 
@@ -79,6 +92,7 @@ export class MapComponent implements OnInit, OnDestroy {
         center: this.center,
         zoom: this.zoom,
         map: this.map,
+        popupEnabled: true,
       };
       this.view = new MapView(mapViewProperties);
 
@@ -90,6 +104,8 @@ export class MapComponent implements OnInit, OnDestroy {
       await this.view.when();
       console.log('ArcGIS map loaded');
       this.addRouting();
+      this.addPlaceSearch();
+      console.log('Routing and place search added');
       return this.view;
     } catch (error) {
       console.error('Error loading the map: ', error);
@@ -271,6 +287,79 @@ export class MapComponent implements OnInit, OnDestroy {
 
     this.view.ui.empty('top-right');
     this.view.ui.add(this.directionsElement, 'top-right');
+  }
+
+  addPlaceSearch() {
+    reactiveUtils.when(
+      () => this.view.stationary,
+      () => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const location = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
+            const point = new Point({
+              longitude: location.lng,
+              latitude: location.lat,
+            });
+            this.findPlaces(this.selectedPlace, point);
+          },
+          (error) => {
+            console.error('Geolocation error:', error);
+          }
+        );
+      }
+    );
+  }
+
+  findPlaces(category: string, pt: esri.Point) {
+    const locatorUrl =
+      'https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer';
+
+    if (category === 'Choose a place type...') {
+      this.graphicsLayer.removeAll();
+      return;
+    }
+
+    locator
+      .addressToLocations(locatorUrl, {
+        location: pt,
+        categories: [category],
+        maxLocations: 25,
+        outFields: ['Place_addr', 'PlaceName'],
+        address: undefined,
+      })
+      .then((results) => {
+        this.graphicsLayer.removeAll();
+
+        results.forEach((result) => {
+          const graphic = new Graphic({
+            attributes: result.attributes,
+            geometry: result.location,
+            symbol: new SimpleMarkerSymbol({
+              color: '#000000',
+              size: '12px',
+              outline: {
+                color: '#ffffff',
+                width: '2px',
+              },
+            }),
+            popupTemplate: {
+              title: '{PlaceName}',
+              content: '{Place_addr}',
+            },
+          });
+          this.graphicsLayer.add(graphic);
+        });
+      })
+      .catch((error) => {
+        console.error('Error finding places: ', error);
+      });
+  }
+
+  onPlaceChange(event: MatSelectChange) {
+    this.findPlaces(event.value, this.view.center);
   }
 
   ngOnDestroy() {

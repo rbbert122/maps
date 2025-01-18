@@ -18,6 +18,15 @@
   height: 100%;
 }
 
+/* Sidebar styling */
+.map-dropdown {
+  position: absolute;
+  top: 10%;
+  left: 70%;
+  z-index: 1000;
+  width: 200px; /* Adjust as needed */
+}
+
 /* Floating Action Button (FAB) styling */
 .fab {
   position: fixed;
