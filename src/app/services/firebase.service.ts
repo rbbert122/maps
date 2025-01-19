@@ -41,14 +41,16 @@ export class FirebaseService {
     const weightKg = 70;
     const durationHours = duration / 3600;
 
-    const caloriesBurned = MET * weightKg * durationHours;
+    const caloriesBurned = parseFloat(
+      (MET * weightKg * durationHours).toFixed(2)
+    );
 
     let item: IDatabaseItem = {
       uid: uid,
-      distance: distance,
+      distance: parseFloat(distance.toFixed(2)),
       date: new Date().toLocaleString(),
       calories: caloriesBurned,
-      duration: duration,
+      duration: parseFloat(duration.toFixed(2)),
     };
     this.db.list('list').push(item);
   }
