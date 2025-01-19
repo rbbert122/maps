@@ -66,6 +66,7 @@ export class MapComponent implements OnInit, OnDestroy {
   trackingInterval: any;
   trackedLocations: { lat: number; lng: number }[] = [];
   watchPositionId: number | null = null;
+  lastKnownPosition: { lat: number; lng: number } | null = null;
 
   isConnected: boolean = false;
   subscriptionList: Subscription = new Subscription();
@@ -167,23 +168,18 @@ export class MapComponent implements OnInit, OnDestroy {
             console.log('get selected point: ', elem, point);
             if (this.graphicsLayerUserPoints.graphics.length === 0) {
               this.addPoint(point.latitude, point.longitude);
-              navigator.geolocation.getCurrentPosition(
-                (position) => {
-                  const location = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                  };
-                  const point = new Point({
-                    longitude: location.lng,
-                    latitude: location.lat,
-                  });
-                  this.addPoint(point.latitude, point.longitude);
-                  this.calculateRoute(routeUrl);
-                },
-                (error) => {
-                  console.error('Geolocation error:', error);
-                }
-              );
+
+              // Use the stored position instead of requesting it again
+              if (this.lastKnownPosition) {
+                this.addPoint(
+                  this.lastKnownPosition.lat,
+                  this.lastKnownPosition.lng
+                );
+                this.calculateRoute(routeUrl);
+              } else {
+                console.error('User location not yet available');
+                // Optionally show a message to the user
+              }
             } else {
               this.removePoints();
             }
@@ -443,6 +439,10 @@ export class MapComponent implements OnInit, OnDestroy {
   trackUserLocation() {
     console.log('Tracking user location');
     this.watchPositionId = navigator.geolocation.watchPosition((position) => {
+      this.lastKnownPosition = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
       this.graphicsLayerUserLocation.removeAll();
       const point = new Point({
         longitude: position.coords.longitude,
