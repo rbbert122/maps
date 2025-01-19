@@ -360,7 +360,16 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   onPlaceChange(event: MatSelectChange) {
-    this.findPlaces(event.value, this.view.center);
+    if (!this.lastKnownPosition) {
+      console.error('User location not yet available');
+      return;
+    }
+
+    const point = new Point({
+      longitude: this.lastKnownPosition.lng,
+      latitude: this.lastKnownPosition.lat,
+    });
+    this.findPlaces(this.selectedPlace, point);
   }
 
   toggleGeoTracking() {
@@ -376,11 +385,13 @@ export class MapComponent implements OnInit, OnDestroy {
     console.log('Starting geo tracking');
     this.trackingStartTime = Date.now();
     this.trackingInterval = setInterval(() => {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.trackedLocations.push({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
+      if (!this.lastKnownPosition) {
+        console.error('User location not yet available');
+        return;
+      }
+      this.trackedLocations.push({
+        lat: this.lastKnownPosition.lat,
+        lng: this.lastKnownPosition.lng,
       });
     }, 1000);
   }

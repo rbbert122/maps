@@ -18,5 +18,7 @@
 </div>
 
 <!-- Floating Action Button (FAB) -->
-<button class="track" (click)="toggleGeoTracking()">Workout</button>
+<button class="track" (click)="toggleGeoTracking()">
+  {{ trackingActive ? "Stop Workout" : "Workout" }}
+</button>
 <button class="fab" (click)="clearRouter()">x</button>
