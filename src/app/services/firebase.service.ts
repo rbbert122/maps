@@ -40,7 +40,7 @@ export class FirebaseService {
     let item: IDatabaseItem = {
       uid: uid,
       distance: distance,
-      date: new Date().toISOString(),
+      date: new Date().toLocaleString(),
       calories: 0,
       duration: duration,
     };

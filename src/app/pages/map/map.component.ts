@@ -73,12 +73,7 @@ export class MapComponent implements OnInit, OnDestroy {
   listItems: IDatabaseItem[] = [];
 
   // Place category dropdown
-  places = [
-    'Choose a place type...',
-    'Parks and Outdoors',
-    'Coffee shop',
-    'Food',
-  ];
+  places = ['Choose a place type...', 'Parks and Outdoors', 'Coffee shop'];
   selectedPlace: string = this.places[0];
 
   constructor(private fbs: FirebaseService) {}
