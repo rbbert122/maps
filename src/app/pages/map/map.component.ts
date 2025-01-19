@@ -65,6 +65,7 @@ export class MapComponent implements OnInit, OnDestroy {
   trackingActive = false;
   trackingInterval: any;
   trackedLocations: { lat: number; lng: number }[] = [];
+  watchPositionId: number | null = null;
 
   isConnected: boolean = false;
   subscriptionList: Subscription = new Subscription();
@@ -441,7 +442,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   trackUserLocation() {
     console.log('Tracking user location');
-    navigator.geolocation.watchPosition((position) => {
+    this.watchPositionId = navigator.geolocation.watchPosition((position) => {
       this.graphicsLayerUserLocation.removeAll();
       const point = new Point({
         longitude: position.coords.longitude,
@@ -449,9 +450,9 @@ export class MapComponent implements OnInit, OnDestroy {
       });
       const simpleMarkerSymbol = {
         type: 'simple-marker',
-        color: [226, 119, 40], // Orange
+        color: [226, 119, 40],
         outline: {
-          color: [255, 255, 255], // White
+          color: [255, 255, 255],
           width: 1,
         },
       };
@@ -491,7 +492,21 @@ export class MapComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.view) {
+      this.view.destroy();
     }
+
+    // Clear the watch position
+    if (this.watchPositionId !== null) {
+      navigator.geolocation.clearWatch(this.watchPositionId);
+      this.watchPositionId = null;
+    }
+
+    // Clear tracking interval if it exists
+    if (this.trackingInterval) {
+      clearInterval(this.trackingInterval);
+      this.trackingInterval = null;
+    }
+
     this.disconnectFirebase();
   }
 }
