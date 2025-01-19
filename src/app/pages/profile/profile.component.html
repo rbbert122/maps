@@ -12,20 +12,9 @@
           mat-button
           color="primary"
           class="full-w"
-          (click)="addListItem()"
-        >
-          Add entry
-        </button>
-      </mat-list-item>
-      <mat-divider></mat-divider>
-      <mat-list-item>
-        <button
-          mat-button
-          color="primary"
-          class="full-w"
           (click)="removeItems()"
         >
-          Clear entries
+          Clear history
         </button>
       </mat-list-item>
     </mat-list>
@@ -33,10 +22,13 @@
   <div fxFlex="50%" fxLayout="column" class="scrollable">
     <mat-list>
       <mat-list-item>
-        <span class="label">Database entries</span>
+        <span class="label">Workout history</span>
       </mat-list-item>
       <mat-list-item *ngFor="let item of listItems">
-        <span>{{ item.val }}</span>
+        Distance: {{ item.distance }}<br />
+        Date: {{ item.date }}<br />
+        Calories: {{ item.calories }}<br />
+        Duration: {{ item.duration }}
       </mat-list-item>
     </mat-list>
   </div>

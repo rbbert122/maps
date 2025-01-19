@@ -30,6 +30,12 @@ import * as locator from '@arcgis/core/rest/locator.js';
 
 import { MatSelectChange } from '@angular/material/select';
 
+import { Subscription } from 'rxjs';
+import {
+  FirebaseService,
+  IDatabaseItem,
+} from '../../services/firebase.service';
+
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -46,6 +52,7 @@ export class MapComponent implements OnInit, OnDestroy {
   graphicsLayer!: esri.GraphicsLayer;
   graphicsLayerUserPoints!: esri.GraphicsLayer;
   graphicsLayerRoutes!: esri.GraphicsLayer;
+  graphicsLayerUserLocation!: esri.GraphicsLayer;
   runningTrailHeadsLayer!: esri.FeatureLayer;
 
   zoom = 12;
@@ -53,6 +60,16 @@ export class MapComponent implements OnInit, OnDestroy {
   basemap = 'streets-vector';
   loaded = false;
   directionsElement: any;
+
+  trackingActive = false;
+  trackingInterval: any;
+  trackedLocations: { lat: number; lng: number }[] = [];
+
+  isConnected: boolean = false;
+  subscriptionList: Subscription = new Subscription();
+  subscriptionObj: Subscription = new Subscription();
+
+  listItems: IDatabaseItem[] = [];
 
   // Place category dropdown
   places = [
@@ -63,12 +80,14 @@ export class MapComponent implements OnInit, OnDestroy {
   ];
   selectedPlace: string = this.places[0];
 
-  constructor() {}
+  constructor(private fbs: FirebaseService) {}
 
   ngOnInit() {
     this.initializeMap().then(() => {
       this.loaded = this.view.ready;
       this.mapLoadedEvent.emit(true);
+      this.connectFirebase();
+      this.trackUserLocation();
     });
   }
 
@@ -134,6 +153,8 @@ export class MapComponent implements OnInit, OnDestroy {
     this.map.add(this.graphicsLayerUserPoints);
     this.graphicsLayerRoutes = new GraphicsLayer();
     this.map.add(this.graphicsLayerRoutes);
+    this.graphicsLayerUserLocation = new GraphicsLayer();
+    this.map.add(this.graphicsLayerUserLocation);
   }
 
   addRouting() {
@@ -160,15 +181,12 @@ export class MapComponent implements OnInit, OnDestroy {
                     latitude: location.lat,
                   });
                   this.addPoint(point.latitude, point.longitude);
+                  this.calculateRoute(routeUrl);
                 },
                 (error) => {
                   console.error('Geolocation error:', error);
                 }
               );
-
-              this.sleep(100).then(() => {
-                this.calculateRoute(routeUrl);
-              });
             } else {
               this.removePoints();
             }
@@ -352,12 +370,122 @@ export class MapComponent implements OnInit, OnDestroy {
     this.findPlaces(event.value, this.view.center);
   }
 
-  sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  toggleGeoTracking() {
+    this.trackingActive = !this.trackingActive;
+    if (this.trackingActive) {
+      this.startGeoTracking();
+    } else {
+      this.stopGeoTracking();
+    }
+  }
+
+  startGeoTracking() {
+    this.trackingInterval = setInterval(() => {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.trackedLocations.push({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      });
+    }, 10000);
+  }
+
+  haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+    lat1 = toRadians(lat1);
+    lon1 = toRadians(lon1);
+    lat2 = toRadians(lat2);
+    lon2 = toRadians(lon2);
+
+    const dlat = lat2 - lat1;
+    const dlon = lon2 - lon1;
+
+    const a =
+      Math.sin(dlat / 2) ** 2 +
+      Math.cos(lat1) * Math.cos(lat2) * Math.sin(dlon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const R = 6371.0;
+    const distance = R * c;
+
+    return distance;
+  }
+
+  stopGeoTracking() {
+    if (this.trackingInterval) {
+      clearInterval(this.trackingInterval);
+      this.trackingInterval = null;
+      console.log('Tracked locations:', this.trackedLocations);
+      const array = this.trackedLocations.map((loc) => {
+        return [loc.lng, loc.lat];
+      });
+      let totalDistance = 0;
+      for (let i = 0; i < array.length - 1; i++) {
+        totalDistance += this.haversine(
+          array[i][1],
+          array[i][0],
+          array[i + 1][1],
+          array[i + 1][0]
+        );
+      }
+      console.log('Total distance:', totalDistance);
+      this.addListItem(totalDistance, 0);
+    }
+  }
+
+  trackUserLocation() {
+    console.log('Tracking user location');
+    navigator.geolocation.watchPosition((position) => {
+      this.graphicsLayerUserLocation.removeAll();
+      const point = new Point({
+        longitude: position.coords.longitude,
+        latitude: position.coords.latitude,
+      });
+      const simpleMarkerSymbol = {
+        type: 'simple-marker',
+        color: [226, 119, 40], // Orange
+        outline: {
+          color: [255, 255, 255], // White
+          width: 1,
+        },
+      };
+
+      let pointGraphic: esri.Graphic = new Graphic({
+        geometry: point,
+        symbol: simpleMarkerSymbol,
+      });
+
+      this.graphicsLayerUserLocation.add(pointGraphic);
+    });
+  }
+
+  connectFirebase() {
+    if (this.isConnected) {
+      return;
+    }
+    this.isConnected = true;
+    this.fbs.connectToDatabase();
+  }
+
+  addListItem(distance: number, time: number) {
+    const uid = localStorage.getItem('uid');
+    if (uid) {
+      this.fbs.addListObject(uid, distance, time);
+    }
+  }
+
+  disconnectFirebase() {
+    if (this.subscriptionList != null) {
+      this.subscriptionList.unsubscribe();
+    }
+    if (this.subscriptionObj != null) {
+      this.subscriptionObj.unsubscribe();
+    }
   }
 
   ngOnDestroy() {
     if (this.view) {
     }
+    this.disconnectFirebase();
   }
 }

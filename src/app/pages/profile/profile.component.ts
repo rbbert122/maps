@@ -48,14 +48,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       });
   }
 
-  addListItem() {
-    const uid = localStorage.getItem('uid');
-    if (uid) {
-      let newItemValue: string = Math.floor(Math.random() * 100).toString();
-      this.fbs.addListObject(newItemValue, uid);
-    }
-  }
-
   removeItems() {
     this.fbs.removeListItems();
   }

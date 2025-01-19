@@ -3,9 +3,11 @@ import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { Observable } from 'rxjs';
 
 export interface IDatabaseItem {
-  name: string;
-  val?: string;
   uid?: string;
+  distance?: number;
+  date?: string;
+  calories?: number;
+  duration?: number;
 }
 
 @Injectable({
@@ -34,20 +36,14 @@ export class FirebaseService {
     this.db.list('list').remove();
   }
 
-  addListObject(val: string, uid: string) {
+  addListObject(uid: string, distance: number, duration: number) {
     let item: IDatabaseItem = {
-      name: 'test',
-      val: val,
       uid: uid,
+      distance: distance,
+      date: new Date().toISOString(),
+      calories: 0,
+      duration: duration,
     };
     this.db.list('list').push(item);
-  }
-
-  updateObject(val: string) {
-    let item: IDatabaseItem = {
-      name: 'test',
-      val: val,
-    };
-    this.db.object('obj').set([item]);
   }
 }
