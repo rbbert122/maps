@@ -37,11 +37,17 @@ export class FirebaseService {
   }
 
   addListObject(uid: string, distance: number, duration: number) {
+    const MET = 8;
+    const weightKg = 70;
+    const durationHours = duration / 3600;
+
+    const caloriesBurned = MET * weightKg * durationHours;
+
     let item: IDatabaseItem = {
       uid: uid,
       distance: distance,
       date: new Date().toLocaleString(),
-      calories: 0,
+      calories: caloriesBurned,
       duration: duration,
     };
     this.db.list('list').push(item);
