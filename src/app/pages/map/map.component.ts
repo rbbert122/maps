@@ -77,7 +77,7 @@ export class MapComponent implements OnInit, OnDestroy {
   async initializeMap() {
     try {
       Config.apiKey =
-        'AAPTxy8BH1VEsoebNVZXo8HurF30MVOzu-lK5LKmRBHShYHD770ai5m7FTbZWy0IFnpib324kw04zDl7I3ESy5LIbByGnW-FO8AFWxgqi2wbqCc-GpxKVtiq-6VmWOfqMFyoDZh_Z4xtjnqsQqAyz5LITuL0QWK5F3IzUxy8N_71Guj69GXPncSXu8Sj5vMFni5_UIsnd3BdpOOG3yP-rjahffOQSz-2XxUz-5iG5j9RfaE.AT1_9gFlqVVX';
+        'AAPTxy8BH1VEsoebNVZXo8HurF30MVOzu-lK5LKmRBHShYE5QkBInPqMbbp3YFcDPGnH2D404e-ppLPm0lT3QaU8biIAeHmm6u0Rk2_FcJBjofjWz1mUxtYHdjj23pky6WMe5JtPral78HBvws2V9NiZyGwtXxND-pRHLP0xRdRtJdiNOX2LApyKUhxW_QADUy8l-B2BOCi9k9yBeTEDI2ewe813d-CntqJggwlgfshI-E0.AT1_OhxOjjcg';
 
       const mapProperties: esri.WebMapProperties = {
         basemap: this.basemap,
