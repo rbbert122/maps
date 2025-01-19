@@ -61,6 +61,7 @@ export class MapComponent implements OnInit, OnDestroy {
   loaded = false;
   directionsElement: any;
 
+  trackingStartTime: number = 0;
   trackingActive = false;
   trackingInterval: any;
   trackedLocations: { lat: number; lng: number }[] = [];
@@ -380,6 +381,8 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   startGeoTracking() {
+    console.log('Starting geo tracking');
+    this.trackingStartTime = Date.now();
     this.trackingInterval = setInterval(() => {
       navigator.geolocation.getCurrentPosition((position) => {
         this.trackedLocations.push({
@@ -387,7 +390,7 @@ export class MapComponent implements OnInit, OnDestroy {
           lng: position.coords.longitude,
         });
       });
-    }, 10000);
+    }, 1000);
   }
 
   haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -429,7 +432,15 @@ export class MapComponent implements OnInit, OnDestroy {
         );
       }
       console.log('Total distance:', totalDistance);
-      this.addListItem(totalDistance, 0);
+
+      const totalTimeMs = this.trackingStartTime
+        ? Date.now() - this.trackingStartTime
+        : 0;
+      const totalTimeSeconds = Math.floor(totalTimeMs / 1000);
+      this.trackingStartTime = 0;
+      console.log('Total time:', totalTimeSeconds);
+
+      this.addListItem(totalDistance, totalTimeSeconds);
     }
   }
 
