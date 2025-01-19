@@ -37,10 +37,12 @@ export class FirebaseService {
   }
 
   addListObject(uid: string, distance: number, duration: number) {
-    const MET = 8;
-    const weightKg = 70;
+    const paceMetersPerSecond = distance / duration;
+    const MET = 1.0 + 0.2 * paceMetersPerSecond + 0.9 * Math.pow(paceMetersPerSecond, 2); // calories burnt updated formula
+  
+    const weightKg = 70; 
     const durationHours = duration / 3600;
-
+  
     const caloriesBurned = parseFloat(
       (MET * weightKg * durationHours).toFixed(2)
     );
@@ -52,6 +54,7 @@ export class FirebaseService {
       calories: caloriesBurned,
       duration: parseFloat(duration.toFixed(2)),
     };
+
     this.db.list('list').push(item);
   }
 }
