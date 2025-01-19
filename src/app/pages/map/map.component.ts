@@ -36,8 +36,6 @@ import {
   IDatabaseItem,
 } from '../../services/firebase.service';
 
-import Popup from '@arcgis/core/widgets/Popup.js';
-
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
