@@ -36,6 +36,8 @@ import {
   IDatabaseItem,
 } from '../../services/firebase.service';
 
+import Popup from '@arcgis/core/widgets/Popup.js';
+
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -133,6 +135,20 @@ export class MapComponent implements OnInit, OnDestroy {
     this.runningTrailHeadsLayer = new FeatureLayer({
       url: 'https://services5.arcgis.com/gZloC1PiusdWdoOz/arcgis/rest/services/Trails/FeatureServer/1',
       outFields: ['*'],
+      popupTemplate: {
+        title: '{Name}',
+        content: [
+          {
+            type: 'fields',
+            fieldInfos: [
+              {
+                fieldName: 'Summary',
+                label: 'Description',
+              },
+            ],
+          },
+        ],
+      },
     });
     this.map.add(this.runningTrailHeadsLayer);
 
@@ -158,18 +174,28 @@ export class MapComponent implements OnInit, OnDestroy {
   addRouting() {
     const routeUrl =
       'https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World';
+
     this.view.on('click', (event) => {
       this.view.hitTest(event).then((elem: esri.HitTestResult) => {
         if (elem && elem.results && elem.results.length > 0) {
-          let point = elem.results.find(
+          const trailHeadResult = elem.results.find(
             (e) => e.layer === this.runningTrailHeadsLayer
-          )?.mapPoint as esri.Point | undefined;
-          if (point) {
-            console.log('get selected point: ', elem, point);
+          );
+
+          if (trailHeadResult) {
+            const point = trailHeadResult.mapPoint;
+            const graphic = (trailHeadResult as esri.GraphicHit).graphic;
+
+            // Show the popup at the clicked location
+            this.view.popup.open({
+              location: point,
+              features: [graphic],
+            });
+
+            // Handle routing if needed
             if (this.graphicsLayerUserPoints.graphics.length === 0) {
               this.addPoint(point.latitude, point.longitude);
 
-              // Use the stored position instead of requesting it again
               if (this.lastKnownPosition) {
                 this.addPoint(
                   this.lastKnownPosition.lat,
@@ -178,10 +204,10 @@ export class MapComponent implements OnInit, OnDestroy {
                 this.calculateRoute(routeUrl);
               } else {
                 console.error('User location not yet available');
-                // Optionally show a message to the user
               }
             } else {
               this.removePoints();
+              this.removeRoutes();
             }
           }
         }
