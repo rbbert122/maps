@@ -16,7 +16,6 @@ import MapView from '@arcgis/core/views/MapView';
 
 import Graphic from '@arcgis/core/Graphic';
 import Point from '@arcgis/core/geometry/Point';
-import Polyline from '@arcgis/core/geometry/Polyline.js';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
 import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol.js';
 
@@ -46,9 +45,8 @@ export class MapComponent implements OnInit, OnDestroy {
   view!: esri.MapView;
   graphicsLayer!: esri.GraphicsLayer;
   graphicsLayerUserPoints!: esri.GraphicsLayer;
-  graphicsLayerUserPolylines!: esri.GraphicsLayer;
   graphicsLayerRoutes!: esri.GraphicsLayer;
-  trailheadsLayer!: esri.FeatureLayer;
+  runningTrailHeadsLayer!: esri.FeatureLayer;
 
   zoom = 12;
   center: Array<number> = [26.096306, 44.439663];
@@ -115,21 +113,16 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   addFeatureLayers() {
-    this.trailheadsLayer = new FeatureLayer({
-      url: 'https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trailheads/FeatureServer/0',
+    this.runningTrailHeadsLayer = new FeatureLayer({
+      url: 'https://services5.arcgis.com/gZloC1PiusdWdoOz/arcgis/rest/services/Trails/FeatureServer/1',
       outFields: ['*'],
     });
-    this.map.add(this.trailheadsLayer);
+    this.map.add(this.runningTrailHeadsLayer);
 
-    const trailsLayer = new FeatureLayer({
-      url: 'https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0',
+    const runningTrailsLayer = new FeatureLayer({
+      url: 'https://services5.arcgis.com/gZloC1PiusdWdoOz/arcgis/rest/services/Trails/FeatureServer/0',
     });
-    this.map.add(trailsLayer, 0);
-
-    const parksLayer = new FeatureLayer({
-      url: 'https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Parks_and_Open_Space/FeatureServer/0',
-    });
-    this.map.add(parksLayer, 0);
+    this.map.add(runningTrailsLayer, 0);
 
     console.log('Feature layers added');
   }
@@ -139,8 +132,6 @@ export class MapComponent implements OnInit, OnDestroy {
     this.map.add(this.graphicsLayer);
     this.graphicsLayerUserPoints = new GraphicsLayer();
     this.map.add(this.graphicsLayerUserPoints);
-    this.graphicsLayerUserPolylines = new GraphicsLayer();
-    this.map.add(this.graphicsLayerUserPolylines);
     this.graphicsLayerRoutes = new GraphicsLayer();
     this.map.add(this.graphicsLayerRoutes);
   }
@@ -151,15 +142,33 @@ export class MapComponent implements OnInit, OnDestroy {
     this.view.on('click', (event) => {
       this.view.hitTest(event).then((elem: esri.HitTestResult) => {
         if (elem && elem.results && elem.results.length > 0) {
-          let point = elem.results.find((e) => e.layer === this.trailheadsLayer)
-            ?.mapPoint as esri.Point | undefined;
+          let point = elem.results.find(
+            (e) => e.layer === this.runningTrailHeadsLayer
+          )?.mapPoint as esri.Point | undefined;
           if (point) {
             console.log('get selected point: ', elem, point);
             if (this.graphicsLayerUserPoints.graphics.length === 0) {
               this.addPoint(point.latitude, point.longitude);
-            } else if (this.graphicsLayerUserPoints.graphics.length === 1) {
-              this.addPoint(point.latitude, point.longitude);
-              this.calculateRoute(routeUrl);
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  const location = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                  };
+                  const point = new Point({
+                    longitude: location.lng,
+                    latitude: location.lat,
+                  });
+                  this.addPoint(point.latitude, point.longitude);
+                },
+                (error) => {
+                  console.error('Geolocation error:', error);
+                }
+              );
+
+              this.sleep(100).then(() => {
+                this.calculateRoute(routeUrl);
+              });
             } else {
               this.removePoints();
             }
@@ -174,6 +183,7 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   addPoint(lat: number, lng: number) {
+    console.log('Adding point: ', lat, lng);
     let point = new Point({
       longitude: lng,
       latitude: lat,
@@ -200,29 +210,6 @@ export class MapComponent implements OnInit, OnDestroy {
     this.graphicsLayerUserPoints.removeAll();
   }
 
-  addPolyline(points: Array<Array<number>>) {
-    let polyline = new Polyline({
-      paths: [points],
-    });
-
-    const simpleLineSymbol = {
-      type: 'simple-line',
-      color: [226, 119, 40], // Orange
-      width: 2,
-    };
-
-    let polylineGraphic: esri.Graphic = new Graphic({
-      geometry: polyline,
-      symbol: simpleLineSymbol,
-    });
-
-    this.graphicsLayerUserPolylines.add(polylineGraphic);
-  }
-
-  removePolylines() {
-    this.graphicsLayerUserPolylines.removeAll();
-  }
-
   async calculateRoute(routeUrl: string) {
     const routeParams = new RouteParameters({
       stops: new FeatureSet({
@@ -230,6 +217,10 @@ export class MapComponent implements OnInit, OnDestroy {
       }),
       returnDirections: true,
     });
+    console.log(
+      'Route parameters: ',
+      this.graphicsLayerUserPoints.graphics.toArray()
+    );
 
     try {
       const data = await route.solve(routeUrl, routeParams);
@@ -261,7 +252,6 @@ export class MapComponent implements OnInit, OnDestroy {
       // Remove all graphics related to routes
       this.removeRoutes();
       this.removePoints();
-      this.removePolylines();
       console.log('Route cleared');
       this.view.ui.remove(this.directionsElement);
       this.view.ui.empty('top-right');
@@ -360,6 +350,10 @@ export class MapComponent implements OnInit, OnDestroy {
 
   onPlaceChange(event: MatSelectChange) {
     this.findPlaces(event.value, this.view.center);
+  }
+
+  sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   ngOnDestroy() {
