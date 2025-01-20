@@ -16,13 +16,15 @@
   <div fxFlex="50%" fxLayout="column" class="scrollable">
     <mat-list>
       <mat-list-item>
-        <span class="label">Workout history</span>
+        <h2 class="label">Workout history</h2>
       </mat-list-item>
-      <mat-list-item *ngFor="let item of listItems">
-        Distance: {{ item.distance }}<br />
-        Date: {{ item.date }}<br />
-        Calories: {{ item.calories }}<br />
-        Duration: {{ item.duration }}
+      <mat-list-item *ngFor="let item of listItems" class="workout-item">
+        <div class="workout-details">
+          <p><strong>Distance:</strong> {{ item.distance }} km</p>
+          <p><strong>Date:</strong> {{ item.date }}</p>
+          <p><strong>Calories:</strong> {{ item.calories }}</p>
+          <p><strong>Duration:</strong> {{ item.duration }} seconds</p>
+        </div>
       </mat-list-item>
     </mat-list>
   </div>
